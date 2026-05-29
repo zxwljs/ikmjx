@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>买家秀 - 图片详情</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-brand {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-brand:hover {
+            color: #667eea;
+        }
+
+        .nav-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .nav-toggle:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-toggle span {
+            width: 25px;
+            height: 3px;
+            background: #333;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .nav-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .nav-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .nav-link {
+            padding: 10px 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .nav-dropdown {
+            position: relative;
+        }
+
+        .nav-dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            min-width: 200px;
+            padding: 10px 0;
+            margin-top: 10px;
+        }
+
+        .nav-dropdown.active .nav-dropdown-content {
+            display: block;
+        }
+
+        .nav-dropdown-item {
+            display: block;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+
+        .nav-dropdown-item:hover {
+            background: #f8f9fa;
+        }
+
+        .nav-dropdown-item span {
+            margin-right: 8px;
+        }
+
+        .image-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .image-wrapper {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 90%;
+            max-height: 90vh;
+            text-align: center;
+        }
+
+        .image-wrapper img {
+            max-width: 100%;
+            max-height: 75vh;
+            border-radius: 10px;
+            display: block;
+        }
+
+        .image-info {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .image-title {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .share-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .share-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .share-btn-copy {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .share-btn-copy:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .share-btn-native {
+            background: #34c759;
+            color: white;
+            box-shadow: 0 4px 15px rgba(52, 199, 89, 0.3);
+        }
+
+        .share-btn-native:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 199, 89, 0.5);
+        }
+
+        .share-btn-native.hidden {
+            display: none;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #333;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 14px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 3000;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            color: #333;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-btn:hover {
+            background: #e9ecef;
+        }
+
+        .error-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 20px;
+            color: white;
+        }
+
+        .error-container h2 {
+            font-size: 24px;
+        }
+
+        .error-container p {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+
+        .loading-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .disclaimer {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 15px;
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #856404;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .image-container {
+                padding: 20px;
+            }
+
+            .image-wrapper {
+                padding: 15px;
+            }
+
+            .share-buttons {
+                flex-direction: column;
+            }
+
+            .share-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .nav-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                flex-direction: column;
+                padding: 20px;
+                gap: 10px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .nav-dropdown-content {
+                position: static;
+                box-shadow: none;
+                padding-left: 20px;
+                background: #f8f9fa;
+                margin-top: 10px;
+            }
+
+            .nav-dropdown.active .nav-dropdown-content {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="index.html" class="nav-brand">📸 买家秀图库</a>
+        
+        <div class="nav-toggle" id="nav-toggle" onclick="toggleNav()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <div class="nav-links" id="nav-links">
+            <a href="index.html" class="nav-link">🏠 图库</a>
+            <a href="random.html" class="nav-link">🎲 随机</a>
+            
+            <div class="nav-dropdown" id="nav-dropdown">
+                <a href="#" class="nav-link" onclick="toggleDropdown(event)">☰ 更多 ▼</a>
+                <div class="nav-dropdown-content">
+                    <a href="#" class="nav-dropdown-item"><span>📌</span>页面1（待开发）</a>
+                    <a href="#" class="nav-dropdown-item"><span>📌</span>页面2（待开发）</a>
+                    <a href="#" class="nav-dropdown-item"><span>📌</span>页面3（待开发）</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="loading" class="loading-container">
+        <div class="spinner"></div>
+    </div>
+
+    <div id="error" class="error-container" style="display: none;">
+        <h2>图片不存在</h2>
+        <p>请检查图片ID是否正确</p>
+        <a href="index.html" class="nav-link">返回图库</a>
+    </div>
+
+    <div id="content" style="display: none;">
+        <div class="image-container">
+            <div class="image-wrapper">
+                <img id="image" src="" alt="买家秀">
+                <div class="image-info">
+                    <div class="image-title" id="image-title">买家秀 1</div>
+                    <div class="share-buttons">
+                        <button class="share-btn share-btn-copy" onclick="copyLink()">
+                            📋 复制链接
+                        </button>
+                        <button class="share-btn share-btn-native" id="share-native" onclick="nativeShare()">
+                            📱 分享
+                        </button>
+                    </div>
+                    <div class="nav-buttons">
+                        <a class="nav-btn" id="prev-btn" onclick="navigate(-1)">
+                            ← 上一张
+                        </a>
+                        <a class="nav-btn" id="next-btn" onclick="navigate(1)">
+                            下一张 →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>⚠️ 免责声明</strong>
+           本站展示的图片均来源于互联网，仅供学习交流使用。我们不拥有这些图片的版权，所有版权归原作者所有。如有侵权，请联系我们删除。
+        </div>
+    </div>
+
+    <div class="toast" id="toast">链接已复制到剪贴板</div>
+
+    <script>
+        const IMAGE_COUNT = 369;
+        const IMAGE_FOLDER = 'src';
+
+        function getImageId() {
+            const params = new URLSearchParams(window.location.search);
+            return parseInt(params.get('id')) || 1;
+        }
+
+        function getImageSrc(id) {
+            return `${IMAGE_FOLDER}/api.1ove.icu (${id}).jpg`;
+        }
+
+        function getShareUrl(id) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('id', id);
+            return url.toString();
+        }
+
+        function updateNavigation() {
+            const currentId = getImageId();
+            document.getElementById('prev-btn').href = `?id=${currentId > 1 ? currentId - 1 : IMAGE_COUNT}`;
+            document.getElementById('next-btn').href = `?id=${currentId < IMAGE_COUNT ? currentId + 1 : 1}`;
+        }
+
+        function loadImage() {
+            const loadingEl = document.getElementById('loading');
+            const errorEl = document.getElementById('error');
+            const contentEl = document.getElementById('content');
+
+            const imageId = getImageId();
+
+            if (imageId < 1 || imageId > IMAGE_COUNT) {
+                loadingEl.style.display = 'none';
+                errorEl.style.display = 'flex';
+                return;
+            }
+
+            const img = new Image();
+            img.onload = function() {
+                loadingEl.style.display = 'none';
+                contentEl.style.display = 'block';
+
+                document.getElementById('image').src = getImageSrc(imageId);
+                document.getElementById('image-title').textContent = `买家秀 ${imageId}`;
+                document.title = `买家秀 ${imageId} - 买家秀图库`;
+
+                updateNavigation();
+                checkNativeShare();
+            };
+
+            img.onerror = function() {
+                loadingEl.style.display = 'none';
+                errorEl.style.display = 'flex';
+            };
+
+            img.src = getImageSrc(imageId);
+        }
+
+        function copyLink() {
+            const url = getShareUrl(getImageId());
+            navigator.clipboard.writeText(url).then(() => {
+                showToast('链接已复制到剪贴板');
+            }).catch(() => {
+                showToast('复制失败，请手动复制');
+            });
+        }
+
+        async function nativeShare() {
+            const imageId = getImageId();
+            const shareData = {
+                title: `买家秀 ${imageId}`,
+                text: `来看看这个买家秀图片！`,
+                url: getShareUrl(imageId)
+            };
+
+            if (navigator.share) {
+                try {
+                    await navigator.share(shareData);
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        console.error('Share failed:', err);
+                    }
+                }
+            }
+        }
+
+        function checkNativeShare() {
+            const shareBtn = document.getElementById('share-native');
+            if (!navigator.share) {
+                shareBtn.classList.add('hidden');
+            }
+        }
+
+        function navigate(direction) {
+            const currentId = getImageId();
+            let newId = currentId + direction;
+
+            if (newId < 1) {
+                newId = IMAGE_COUNT;
+            } else if (newId > IMAGE_COUNT) {
+                newId = 1;
+            }
+
+            window.location.href = `?id=${newId}`;
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        window.onload = loadImage;
+
+        function toggleNav() {
+            const navToggle = document.getElementById('nav-toggle');
+            const navLinks = document.getElementById('nav-links');
+            navToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        }
+
+        function toggleDropdown(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            const dropdown = document.getElementById('nav-dropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('nav-dropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
