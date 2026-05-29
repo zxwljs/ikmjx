@@ -100,43 +100,6 @@
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
         }
 
-        .nav-dropdown {
-            position: relative;
-        }
-
-        .nav-dropdown-content {
-            display: none;
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            min-width: 200px;
-            padding: 10px 0;
-            margin-top: 10px;
-        }
-
-        .nav-dropdown.active .nav-dropdown-content {
-            display: block;
-        }
-
-        .nav-dropdown-item {
-            display: block;
-            padding: 12px 20px;
-            color: #333;
-            text-decoration: none;
-            transition: background 0.3s ease;
-        }
-
-        .nav-dropdown-item:hover {
-            background: #f8f9fa;
-        }
-
-        .nav-dropdown-item span {
-            margin-right: 8px;
-        }
-
         .header {
             text-align: center;
             padding: 40px 20px;
@@ -355,16 +318,6 @@
         <div class="nav-links" id="nav-links">
             <a href="index.html" class="nav-link">🏠 图库</a>
             <a href="random.html" class="nav-link">🎲 随机</a>
-            
-            <div class="nav-dropdown" id="nav-dropdown">
-                <a href="#" class="nav-link" onclick="toggleDropdown(event)">☰ 更多 ▼</a>
-                <div class="nav-dropdown-content">
-                    <!-- 未来可添加更多页面入口 -->
-                    <a href="#" class="nav-dropdown-item"><span>📌</span>页面1（待开发）</a>
-                    <a href="#" class="nav-dropdown-item"><span>📌</span>页面2（待开发）</a>
-                    <a href="#" class="nav-dropdown-item"><span>📌</span>页面3（待开发）</a>
-                </div>
-            </div>
         </div>
     </nav>
 
@@ -536,20 +489,6 @@
             navToggle.classList.toggle('active');
             navLinks.classList.toggle('active');
         }
-
-        function toggleDropdown(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            const dropdown = document.getElementById('nav-dropdown');
-            dropdown.classList.toggle('active');
-        }
-
-        document.addEventListener('click', (e) => {
-            const dropdown = document.getElementById('nav-dropdown');
-            if (!dropdown.contains(e.target)) {
-                dropdown.classList.remove('active');
-            }
-        });
 
         initGallery();
     </script>
