@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>买家秀随机展示</title>
+    <title>买家秀图库</title>
     <style>
         * {
             margin: 0;
@@ -15,182 +15,402 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+        }
+
+        .nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            padding: 20px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
-        .container {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-        }
-
-        h1 {
+        .nav-brand {
+            font-size: 20px;
+            font-weight: bold;
             color: #333;
-            margin-bottom: 30px;
-            font-size: 24px;
-        }
-
-        .image-card {
-            background: #f8f9fa;
-            border-radius: 15px;
-            overflow: hidden;
-            margin-bottom: 30px;
-            min-height: 400px;
+            text-decoration: none;
             display: flex;
-            justify-content: center;
             align-items: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            gap: 8px;
         }
 
-        .image-card img {
-            max-width: 100%;
-            max-height: 400px;
-            object-fit: contain;
-            display: block;
+        .nav-brand:hover {
+            color: #667eea;
         }
 
-        .placeholder {
-            color: #999;
-            font-size: 18px;
+        .nav-links {
+            display: flex;
+            gap: 20px;
         }
 
-        .random-btn {
+        .nav-link {
+            padding: 10px 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 18px;
-            border-radius: 50px;
-            cursor: pointer;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 14px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
 
-        .random-btn:hover {
+        .nav-link:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
         }
 
-        .random-btn:active {
-            transform: translateY(0);
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            color: white;
         }
 
-        .random-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
 
-        .image-counter {
-            margin-top: 20px;
-            color: #666;
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .gallery {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            columns: 4;
+            column-gap: 20px;
+        }
+
+        .gallery-item {
+            break-inside: avoid;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            display: block;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .gallery-item img.loaded {
+            opacity: 1;
+        }
+
+        .gallery-item .placeholder {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #adb5bd;
             font-size: 14px;
         }
 
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 80vh;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .lightbox-close:hover {
+            transform: scale(1.2);
+        }
+
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 50px;
+            color: white;
+            cursor: pointer;
+            padding: 20px;
+            transition: opacity 0.3s ease;
+        }
+
+        .lightbox-nav:hover {
+            opacity: 0.7;
+        }
+
+        .lightbox-prev {
+            left: 20px;
+        }
+
+        .lightbox-next {
+            right: 20px;
+        }
+
+        .lightbox-counter {
+            color: white;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
         .disclaimer {
-            margin-top: 30px;
-            padding: 15px;
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 20px;
             background: #fff3cd;
             border: 1px solid #ffc107;
             border-radius: 8px;
-            font-size: 12px;
+            font-size: 14px;
             color: #856404;
             line-height: 1.6;
+            text-align: center;
         }
 
         .disclaimer strong {
             display: block;
             margin-bottom: 5px;
         }
+
+        @media (max-width: 1200px) {
+            .gallery {
+                columns: 3;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .gallery {
+                columns: 2;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .gallery {
+                columns: 1;
+            }
+
+            .nav {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>📸 买家秀随机展示</h1>
-        
-        <div class="image-card">
-            <img id="showcase-image" src="" alt="买家秀" style="display: none;">
-            <div id="placeholder" class="placeholder">点击按钮随机展示图片</div>
+    <nav class="nav">
+        <a href="index.html" class="nav-brand">📸 买家秀图库</a>
+        <div class="nav-links">
+            <a href="random.html" class="nav-link">🎲 随机展示</a>
         </div>
+    </nav>
 
-        <button class="random-btn" onclick="showRandomImage()">🎲 随机展示</button>
-        
-        <div class="image-counter" id="image-counter"></div>
+    <header class="header">
+        <h1>买家秀图库</h1>
+        <p>共 <span id="total-count">0</span> 张图片</p>
+    </header>
 
-        <div class="disclaimer">
-            <strong>⚠️ 免责声明</strong>
-            本站展示的图片均来源于互联网，仅供学习交流使用。我们不拥有这些图片的版权，所有版权归原作者所有。如有侵权，请联系我们删除。
-        </div>
+    <div class="gallery" id="gallery"></div>
+
+    <div class="disclaimer">
+        <strong>⚠️ 免责声明</strong>
+       本站展示的图片均来源于互联网，仅供学习交流使用。我们不拥有这些图片的版权，所有版权归原作者所有。如有侵权，请联系我们删除。
+    </div>
+
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close" id="lightbox-close">&times;</span>
+        <span class="lightbox-nav lightbox-prev" id="lightbox-prev">&#10094;</span>
+        <img src="" alt="" id="lightbox-img">
+        <span class="lightbox-nav lightbox-next" id="lightbox-next">&#10095;</span>
+        <div class="lightbox-counter" id="lightbox-counter"></div>
     </div>
 
     <script>
-        // 根据文件名规则动态生成图片列表
-        // 文件名格式：api.1ove.icu (数字).jpg
-        // 图片范围：1 到 369
         const IMAGE_COUNT = 369;
         const IMAGE_FOLDER = 'src';
         
+        const gallery = document.getElementById('gallery');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxCounter = document.getElementById('lightbox-counter');
+        const totalCountEl = document.getElementById('total-count');
+
+        let currentLightboxIndex = 0;
+        let images = [];
+
         function generateImageList() {
-            const images = [];
+            const list = [];
             for (let i = 1; i <= IMAGE_COUNT; i++) {
-                images.push(`${IMAGE_FOLDER}/api.1ove.icu (${i}).jpg`);
+                list.push({
+                    index: i,
+                    src: `${IMAGE_FOLDER}/api.1ove.icu (${i}).jpg`
+                });
             }
-            return images;
+            return list;
         }
 
-        const images = generateImageList();
-        let currentIndex = -1;
+        function createGalleryItem(imageData) {
+            const item = document.createElement('div');
+            item.className = 'gallery-item';
+            item.dataset.index = imageData.index;
 
-        function showRandomImage() {
-            if (images.length === 0) {
-                alert('请先添加图片！');
-                return;
-            }
-
-            // 确保不会连续显示同一张图片
-            let newIndex;
-            do {
-                newIndex = Math.floor(Math.random() * images.length);
-            } while (newIndex === currentIndex && images.length > 1);
-
-            currentIndex = newIndex;
-
-            const imgElement = document.getElementById('showcase-image');
-            const placeholder = document.getElementById('placeholder');
-            const counter = document.getElementById('image-counter');
-            const btn = document.querySelector('.random-btn');
-
-            // 禁用按钮防止重复点击
-            btn.disabled = true;
+            const placeholder = document.createElement('div');
+            placeholder.className = 'placeholder';
             placeholder.textContent = '加载中...';
 
-            // 创建新图片对象预加载
-            const tempImg = new Image();
-            tempImg.onload = function() {
-                imgElement.src = images[currentIndex];
-                imgElement.style.display = 'block';
+            const img = document.createElement('img');
+            img.dataset.src = imageData.src;
+            img.alt = `买家秀 ${imageData.index}`;
+            img.title = `买家秀 ${imageData.index}`;
+
+            img.onload = function() {
+                img.classList.add('loaded');
                 placeholder.style.display = 'none';
-                counter.textContent = `图片 ${currentIndex + 1} / ${images.length}`;
-                btn.disabled = false;
             };
-            tempImg.onerror = function() {
-                placeholder.textContent = '图片加载失败';
-                btn.disabled = false;
-                console.error('加载失败的图片:', images[currentIndex]);
+
+            img.onerror = function() {
+                placeholder.textContent = '加载失败';
             };
-            tempImg.src = images[currentIndex];
+
+            item.appendChild(placeholder);
+            item.appendChild(img);
+
+            item.addEventListener('click', () => openLightbox(imageData.index));
+
+            return item;
         }
 
-        // 页面加载时自动显示第一张随机图片
-        window.onload = function() {
-            showRandomImage();
-        };
+        function setupLazyLoading() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target.querySelector('img');
+                        if (img && img.dataset.src) {
+                            img.src = img.dataset.src;
+                            observer.unobserve(entry.target);
+                        }
+                    }
+                });
+            }, {
+                rootMargin: '100px'
+            });
+
+            document.querySelectorAll('.gallery-item').forEach(item => {
+                observer.observe(item);
+            });
+        }
+
+        function openLightbox(index) {
+            currentLightboxIndex = index;
+            updateLightboxImage();
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function updateLightboxImage() {
+            const imageData = images.find(img => img.index === currentLightboxIndex);
+            if (imageData) {
+                lightboxImg.src = imageData.src;
+                lightboxImg.alt = `买家秀 ${currentLightboxIndex}`;
+                lightboxCounter.textContent = `${currentLightboxIndex} / ${IMAGE_COUNT}`;
+            }
+        }
+
+        function navigateLightbox(direction) {
+            currentLightboxIndex += direction;
+            if (currentLightboxIndex < 1) {
+                currentLightboxIndex = IMAGE_COUNT;
+            } else if (currentLightboxIndex > IMAGE_COUNT) {
+                currentLightboxIndex = 1;
+            }
+            updateLightboxImage();
+        }
+
+        function initGallery() {
+            images = generateImageList();
+            totalCountEl.textContent = IMAGE_COUNT;
+
+            images.forEach(imageData => {
+                const item = createGalleryItem(imageData);
+                gallery.appendChild(item);
+            });
+
+            setupLazyLoading();
+        }
+
+        document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+        document.getElementById('lightbox-prev').addEventListener('click', () => navigateLightbox(-1));
+        document.getElementById('lightbox-next').addEventListener('click', () => navigateLightbox(1));
+
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (!lightbox.classList.contains('active')) return;
+            
+            if (e.key === 'Escape') {
+                closeLightbox();
+            } else if (e.key === 'ArrowLeft') {
+                navigateLightbox(-1);
+            } else if (e.key === 'ArrowRight') {
+                navigateLightbox(1);
+            }
+        });
+
+        initGallery();
     </script>
 </body>
 </html>

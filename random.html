@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>买家秀随机展示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+
+        .image-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            min-height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-card img {
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .placeholder {
+            color: #999;
+            font-size: 18px;
+        }
+
+        .random-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .random-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .random-btn:active {
+            transform: translateY(0);
+        }
+
+        .random-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .image-counter {
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .disclaimer {
+            margin-top: 30px;
+            padding: 15px;
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #856404;
+            line-height: 1.6;
+        }
+
+        .disclaimer strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 买家秀随机展示</h1>
+        
+        <div class="image-card">
+            <img id="showcase-image" src="" alt="买家秀" style="display: none;">
+            <div id="placeholder" class="placeholder">点击按钮随机展示图片</div>
+        </div>
+
+        <button class="random-btn" onclick="showRandomImage()">🎲 随机展示</button>
+        
+        <div class="image-counter" id="image-counter"></div>
+
+        <div class="disclaimer">
+            <strong>⚠️ 免责声明</strong>
+            本站展示的图片均来源于互联网，仅供学习交流使用。我们不拥有这些图片的版权，所有版权归原作者所有。如有侵权，请联系我们删除。
+        </div>
+    </div>
+
+    <script>
+        // 根据文件名规则动态生成图片列表
+        // 文件名格式：api.1ove.icu (数字).jpg
+        // 图片范围：1 到 369
+        const IMAGE_COUNT = 369;
+        const IMAGE_FOLDER = 'src';
+        
+        function generateImageList() {
+            const images = [];
+            for (let i = 1; i <= IMAGE_COUNT; i++) {
+                images.push(`${IMAGE_FOLDER}/api.1ove.icu (${i}).jpg`);
+            }
+            return images;
+        }
+
+        const images = generateImageList();
+        let currentIndex = -1;
+
+        function showRandomImage() {
+            if (images.length === 0) {
+                alert('请先添加图片！');
+                return;
+            }
+
+            // 确保不会连续显示同一张图片
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * images.length);
+            } while (newIndex === currentIndex && images.length > 1);
+
+            currentIndex = newIndex;
+
+            const imgElement = document.getElementById('showcase-image');
+            const placeholder = document.getElementById('placeholder');
+            const counter = document.getElementById('image-counter');
+            const btn = document.querySelector('.random-btn');
+
+            // 禁用按钮防止重复点击
+            btn.disabled = true;
+            placeholder.textContent = '加载中...';
+
+            // 创建新图片对象预加载
+            const tempImg = new Image();
+            tempImg.onload = function() {
+                imgElement.src = images[currentIndex];
+                imgElement.style.display = 'block';
+                placeholder.style.display = 'none';
+                counter.textContent = `图片 ${currentIndex + 1} / ${images.length}`;
+                btn.disabled = false;
+            };
+            tempImg.onerror = function() {
+                placeholder.textContent = '图片加载失败';
+                btn.disabled = false;
+                console.error('加载失败的图片:', images[currentIndex]);
+            };
+            tempImg.src = images[currentIndex];
+        }
+
+        // 页面加载时自动显示第一张随机图片
+        window.onload = function() {
+            showRandomImage();
+        };
+    </script>
+</body>
+</html>
